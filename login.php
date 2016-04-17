@@ -22,6 +22,7 @@ if ( isset($_POST['login']) ){
 		if ( $uid=authenticate($_POST['username'], $_POST['pw']) ){
 			header("Content-Type: text/html; charset=utf-8");
 			//header("refresh: 3; url=index.php");
+			header("location:index.php");
 
 			if ( isset($_POST['keepweek']) && ($_POST['keepweek'] == 'true') ){
 				setcookie('uid', $result['id'], time()+7*24*60*60);
@@ -34,6 +35,12 @@ if ( isset($_POST['login']) ){
 		}
 	}
 	$infoStr = "用户/密码 错误";
+}else if ( isset($_GET['unlogin']) ){
+	session_start();
+	setcookie('uid', '', time()-1);
+	setcookie('pw', '', time()-1);
+	session_destroy();
+	header("location:index.php");
 }
 
 
