@@ -1,1 +1,1 @@
-MD5.js Ê¹ÓÃ×Ô https://github.com/blueimp/JavaScript-MD5
+MD5.js ä½¿ç”¨è‡ª https://github.com/blueimp/JavaScript-MD5
