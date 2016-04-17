@@ -2,6 +2,8 @@
 
 $GLOBALS['config'] = require("config.php");
 
+require('user.php');
+
 require("model/MySQLPDO.class.php");
 require("model/Model.php");
 require("model/BoardModel.class.php");

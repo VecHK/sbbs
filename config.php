@@ -8,7 +8,13 @@ return array(
 	'sbbsTitle' => 'sbbsV2',
 
 	/* 单页限制多少个帖子 */
-	'pageLimit' => 20
+	'pageLimit' => 20,
+
+	/* sbbs的存放路径 */
+	'root' => '/sbbs',
+
+	/* 游客是否能访问 */
+	'accessGuest' => false
 );
 
 ?>

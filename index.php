@@ -3,13 +3,15 @@
 	又一个要坑的项目
 */
 
-require("sql.php");
-
 $GLOBALS['config'] = require("config.php");
 
-require("model/MySQLPDO.class.php");
-require("model/Model.php");
-require("model/BoardModel.class.php");
+require_once("model/MySQLPDO.class.php");
+require_once("model/Model.php");
+require_once("model/BoardModel.class.php");
+
+require_once("model/UserModel.class.php");
+
+require_once("user.php");
 
 $board = new BoardModel;
 
@@ -24,7 +26,8 @@ $board = new BoardModel;
 	<title><?php echo $config["sbbsName"]; ?></title>
 </head>
 <body>
-	<header><h1><?php echo $config["sbbsTitle"]; ?></h1></header>
+	<header><?php echo userInfo(); ?></header>
+	<h1><?php echo $config["sbbsTitle"]; ?></h1>
 	<hr>
 
 	<h1>板块</h1>
