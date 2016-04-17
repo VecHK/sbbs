@@ -1,0 +1,4 @@
+# extend
+
+/extend/*
+!/extends/md5/*
