@@ -10,7 +10,7 @@ function isLogin(){
 }
 function needLogin($infoStr = ""){
 	$infoStr = "需要登录后才能访问";
-	require('login.php');
+	header('location:login.php?info='.$infoStr);
 	die();
 }
 function setUserSession($uid, $pw){
@@ -21,9 +21,10 @@ function setUserSession($uid, $pw){
 function clearUserSession(){
 	$_SESSION['uid'] = '';
 	$_SESSION['pw'] = '';
+	$_SESSION['auth'] = '';
 	$_SESSION['islogin'] = false;
 }
-function authenticate($username, $pw){
+function authenticate($username, $pw, $auth){
 	$usermodel = new UserModel;
 	if ( is_numeric($username) ){
 		$result = $usermodel->getById($username);
@@ -31,7 +32,8 @@ function authenticate($username, $pw){
 		$result = $usermodel->getByUserName( $username );
 		$result || ($result = $usermodel->getByEmail( $pw ));
 	}
-	if ( $result && ($result['pw'] === $pw) ){
+
+	if ( $result && ( md5($auth.$result['pw']) === $pw ) ){
 		$GLOBALS['UserInfo'] = array(
 			'username' => $result['username'],
 			'nickname' => $result['nickname']
@@ -47,11 +49,11 @@ function userInfo(){
 
 	/* 检查cookie，确认登录 */
 	if ( isset($_COOKIE['uid'], $_COOKIE['pw']) && checkUidAndPw($_COOKIE['uid'], $_COOKIE['pw']) && authenticate($_COOKIE['uid'], $_COOKIE['pw']) ){
-		setUserSession($_COOKIE['uid'], $_COOKIE['pw']);
+		setUserSession($_COOKIE['uid'], $_COOKIE['pw'], $_SESSION['auth']);
 	}
 	/* 检查Session */
 	else if ( isset($_SESSION['islogin'], $_SESSION['uid'], $_SESSION['pw']) && checkUidAndPw($_SESSION['uid'], $_SESSION['pw']) ){
-		authenticate($_SESSION['uid'], $_SESSION['pw']);
+		authenticate($_SESSION['uid'], $_SESSION['pw'], $_SESSION['auth']);
 	}
 	else{
 		setcookie('uid', '', time()-1, $GLOBALS['config']['root']);

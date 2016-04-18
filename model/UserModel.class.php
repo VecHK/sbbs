@@ -25,6 +25,11 @@ class UserModel extends model{
 		return $data;
 	}
 
+	public function updateCustomColById($customCol, $setValue, $uid){
+		$sql = "UPDATE `sbbs_user` set {$customCol} = '{$setValue}' WHERE id = {$uid}";
+		return $this->db->exec($sql);
+	}
+
 	public function newUser(){
 
 	}

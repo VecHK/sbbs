@@ -1,6 +1,4 @@
 <?php
-
-
 if ( !isset($GLOBALS['config']) ){
 	$GLOBALS['config'] = require('config.php');
 }
@@ -9,24 +7,34 @@ require_once("model/Model.php");
 require_once("model/UserModel.class.php");
 require_once("user.php");
 
-if ( !isset($infoStr) ){
+function randomChar($isUpper=false){
+	return chr( rand(0,25) + (rand(0, (int)$isUpper) ? 65 : 97) );
+}
+
+function randomString($length, $isUpper=false){
+	return randomChar($isUpper) . ($length ? randomString(--$length, $isUpper) : '');
+}
+
+if ( !isset($_GET['info']) ){
 	$infoStr = "帐号登录";
+}else{
+	$infoStr = $_GET['info'];
 }
 
 function checkUsernameAndPw($username, $pw){
 	return (strlen($pw) === 32);
 }
-
+session_start();
 if ( isset($_POST['login']) ){
 	if ( isset($_POST['username'], $_POST['pw']) && checkUsernameAndPw($_POST['username'], $_POST['pw']) ){
-		if ( $uid=authenticate($_POST['username'], $_POST['pw']) ){
+		if ( $uid=authenticate($_POST['username'], $_POST['pw'], $_POST['login']) ){
 			header("Content-Type: text/html; charset=utf-8");
 			//header("refresh: 3; url=index.php");
-			header("location:index.php");
+			//header("location:index.php");
 
 			if ( isset($_POST['keepweek']) && ($_POST['keepweek'] == 'true') ){
 				setcookie('uid', $result['id'], time()+7*24*60*60);
-				setcookie('pw', $result['pw'], time()+7*24*60*60);
+				setcookie('pw', $_POST['pw'], time()+7*24*60*60);
 			}else{
 				setUserSession($uid, $_POST['pw']);
 			}
@@ -34,13 +42,24 @@ if ( isset($_POST['login']) ){
 			die('<p>登录成功，正在跳转……</p><p>或者<a href="index.php">点我</a></p>');
 		}
 	}
-	$infoStr = "用户/密码 错误";
-}else if ( isset($_GET['unlogin']) ){
-	session_start();
+	needLogin("用户/密码 错误");
+}else if ( !isLogin() ){
+	$_SESSION['auth'] = randomString(16, true);
+}
+
+if ( isset($_GET['unlogin']) ){
+	clearUserSession();
 	setcookie('uid', '', time()-1);
 	setcookie('pw', '', time()-1);
 	session_destroy();
-	header("location:index.php");
+	header("location:login.php");
+	die("");
+}
+
+$backHash = 'backHash';
+function backHash(){
+	return (new UserModel)->getById();
+	return hashStr(randomString(8, true));
 }
 
 
@@ -75,7 +94,7 @@ print <<<EOT
 	<br />
 	<br />
 	<label>
-		<button type="submit" name="login">登录</button>
+		<button type="submit" name="login" value="{$_SESSION['auth']}">登录</button>
 	</label>
 </fieldset>
 </form>
