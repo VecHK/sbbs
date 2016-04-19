@@ -85,7 +85,7 @@ class mysqlPDO{
 	public function insert($sql){
 		$result = $this->query($sql);
 		if ( $result ){
-			return $this->db->lastInsertId;
+			return $this->db->lastInsertId();
 		}else{
 			return false;
 		}

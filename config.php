@@ -14,7 +14,13 @@ return array(
 	'root' => '/sbbs',
 
 	/* 游客是否能访问 */
-	'accessGuest' => false
+	'accessGuest' => false,
+
+	/* 是否允许注册 */
+	'enableSign' => false,
+
+	/* 能允许的内容格式（目前仅支持text） */
+	'allowType' => array('text'/*, 'markdown', 'html'*/)
 );
 
 ?>
