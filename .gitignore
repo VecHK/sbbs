@@ -1,4 +1,5 @@
 # extend
 
-/extend/*
-!/extends/md5/*
+
+/extends/*
+!/extends/md5
