@@ -42,6 +42,7 @@ function authenticate($username, $pw, $auth){
 	}
 }
 
+$userInfo = 'userInfo';
 function userInfo(){
 	$loginStateHTML = "";
 

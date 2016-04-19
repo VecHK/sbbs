@@ -1,7 +1,7 @@
 <?php
 
 class PostModel extends model{
-	public function getPostsByBid($bid, $start, $end){
+	public function getPostsIndexByBid($bid, $start, $end){
 		$bid = (int) $bid;
 		$start = (int) $start;
 		$end = (int) $end;
@@ -10,8 +10,25 @@ class PostModel extends model{
 		return $data;
 	}
 
-	public function getPostById($pid){
+	public function getPostIndexById($pid){
+		$pid = (int) $pid;
 
+		$sql = "SELECT * FROM `sbbs_postlist` WHERE `id` = '{$pid}'";
+		return $this->db->fetchRow($sql);
+	}
+
+	/**
+	* 获取帖子
+	* @param $pid Number pid
+	* @return $posts Array
+	*/
+	public function getPostById($pid, $start, $end){
+		$pid = (int) $pid;
+		$start = (int) $start;
+		$end = (int) $end;
+
+		$sql = "SELECT * FROM `sbbs_pool` WHERE `pid` = '{$pid}' ORDER BY `poolid` LIMIT {$start}, {$end}";
+		return $this->db->fetchAll($sql);
 	}
 
 	/**

@@ -101,6 +101,22 @@ class mysqlPDO{
 	}
 
 	/**
+	* 取得一列结果
+	* @param $sql string 执行的SQL语句
+	* @return array 返回的一列结果
+	*/
+	public function fetchColumn($sql){
+		$colArr = array();
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute();
+
+		for ($i=0; $i<$stmt->rowCount(); ++$i){
+			array_push( $colArr, $stmt->fetchColumn(3) );
+		}
+		return $colArr;
+	}
+
+	/**
 	* 取得所有结果
 	* @param $sql string 执行的SQL语句
 	* @return array 关联数组结果

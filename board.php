@@ -2,8 +2,6 @@
 
 $GLOBALS['config'] = require("config.php");
 
-require('user.php');
-
 require("model/MySQLPDO.class.php");
 require("model/Model.php");
 require("model/BoardModel.class.php");
@@ -43,7 +41,7 @@ function putPostListHtml(){
 	$start = ($page -1) * $GLOBALS['config']['pageLimit'];
 	$end = $start + $GLOBALS['config']['pageLimit'];
 
-	$postArr = (new PostModel)->getPostsByBid($GLOBALS['bid'], $start, $end);
+	$postArr = (new PostModel)->getPostsIndexByBid($GLOBALS['bid'], $start, $end);
 
 	$html = '';
 	if ( $postArr ){

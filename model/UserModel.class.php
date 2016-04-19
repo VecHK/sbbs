@@ -10,6 +10,15 @@ class UserModel extends model{
 		return $data;
 	}
 
+	public function getByIds($idArr){
+		$data = $this->db->fetchAll("SELECT * FROM `sbbs_user` WHERE `id` IN (". implode(', ', $idArr) .")");
+	}
+
+	public function getNameArrById($idArr){
+		$data = $this->db->fetchColumn("SELECT * FROM `sbbs_user` WHERE `id` IN (". implode(', ', $idArr) .")");
+		return $data;
+	}
+
 	public function getById($uid){
 		$data = $this->db->fetchRow("SELECT * FROM `sbbs_user` WHERE id = {$uid}");
 		return $data;
