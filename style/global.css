@@ -1,0 +1,91 @@
+*{
+	font-family: "WenQuanYi Microhei","黑体","DengXian", "Calibri", "Hiragino Sans GB", "microsoft yahei";
+}
+h1, h2, h3, h4, h5, h6{
+	color: #E91E63;
+}
+h1{
+	font-size: 3em;
+}
+h2{
+	font-size: 1.8em;
+}
+h3{
+	font-size: 1.6em;
+}
+h4{
+	font-size:1.4em;
+}
+h5{
+	font-size:1.3em;
+}
+h6{
+	font-size:1.20em;
+}
+
+html, body{
+	padding: 0;
+	margin: 0;
+	height: 100%;
+	width: 100%;
+	position: relative;
+}
+body{
+
+}
+body > header{
+	font-size: smaller;
+	display: flex;
+	justify-content: space-around;
+}
+body > div{
+	margin: auto;
+	width: 640px;
+}
+body > div > hr{
+	border-style: dashed;
+	border-width: thick;
+	border-color: antiquewhite;
+}
+
+a{
+	text-decoration: none;
+}
+
+#board:after {
+	content: "";
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	color: #E91E63;
+	font-size: 5em;
+	opacity: 0.382;
+}
+
+#board{
+	position: relative;
+	list-style-type: none;
+}
+#board li{
+	margin-top: 32px;
+	margin-bottom: 64px;
+	font-size: xx-large;
+}
+
+body > footer{
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
+
+	padding-left: 30px;
+	padding-left: 30px;
+	width: calc( 100% - 30px - 30px );
+
+	color: grey;
+	font-size: small;
+	text-align: center;
+}
