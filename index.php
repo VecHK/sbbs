@@ -7,39 +7,49 @@ $GLOBALS['config'] = require("config.php");
 
 require_once("model/MySQLPDO.class.php");
 require_once("model/Model.php");
-require_once("model/BoardModel.class.php");
 
-require_once("model/UserModel.class.php");
+class HomeController{
+	public function __construct(){
+		$this->setBoardModelInstance();
+		$this->getBoard();
+	}
 
-require_once("user.php");
+	public function setBoardModelInstance(){
+		require_once("model/BoardModel.class.php");
+		self::$boardModel = new BoardModel;
+	}
 
-$board = new BoardModel;
+	private static $boardModel;
+	public function getBoard(){
+		$this->boardArr = self::$boardModel->getAllBoard();
+	}
+
+	public function __destruct(){
+		require_once("model/UserModel.class.php");
+		require_once("user.php");
+		$this->userInfo = userInfo();
+
+		$this->config = require('config.php');
+
+		$this->put();
+	}
+}
+
+class HomeViewer extends HomeController{
+	public function putBoard(){
+		$html='';
+
+		foreach( $this->boardArr as $key => $board ){
+			$html .= "<li><a href=\"board.php?bid={$board["id"]}\">{$board['boardname']}</a></li>";
+		}
+
+		return $html;
+	}
+	public function put(){
+		require('view/home.php');
+	}
+}
+
+new HomeViewer;
 
 ?>
-<!DOCTYPE HTML>
-<html>
-<head>
-	<meta http-equiv="content-type" content="text/html" charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-	<meta name="HandheldFriendly" content="true" />
-	<link href="style/global.css" rel="stylesheet" />
-	<title><?php echo $config["sbbsName"]; ?></title>
-</head>
-<body>
-	<header><?php echo userInfo(); ?></header>
-	<div>
-		<h1><?php echo $config["sbbsTitle"]; ?></h1>
-		<hr>
-		<nav id="board">
-			<?php
-			$boardArr = $board->getAllBoard();
-			foreach( $boardArr as $key => $board ){
-				echo "<li><a href=\"board.php?bid={$board["id"]}\">{$board['boardname']}</a></li>";
-			}
-			?>
-		</nav>
-	</div>
-	<footer>Hey, sbbs</footer>
-</body>
-</html>
