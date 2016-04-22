@@ -11,31 +11,73 @@ require("model/UserModel.class.php");
 
 require_once("user.php");
 
-class GetController{
+class RequestRouter{
 	public $pid;
-
 	public $page;
 
-	public $title;
-
-	public $content;
-
-	private static function diee($headerStr){
-		//print($headerStr);
-		die(header($headerStr));
+	/* 入口 */
+	public function __construct(){
+		$this->requestRouter();
 	}
 
 	private function processGET(){
-		( isset($_GET['id']) && is_numeric($_GET['id']) ) || self::$die('location: index.php');
+		$this->setPostModelInstance();
+		$this->getPool();
+		$this->getPostIndex();
+
+		$this->setUserModelInstance();
+		$this->setUser();
+
+		$this->setBoardModelInstance();
+		$this->getBoardName();
+	}
+	private function GET(){
+		( isset($_GET['id']) && is_numeric($_GET['id']) ) || self::jump('location: index.php');
 
 		$this->page = ( isset($_GET['page']) && is_numeric($_GET['page']) ) ? abs( (int)$_GET['page'] ) : 1;
 
 		$this->pid = abs( (int)$_GET['id'] );
+
+		$this->processGET();
 	}
 
+	private function POST(){
+		if ( isset($_POST['repost']) ){
+			isset($_POST['repost']) || $this->jump("location: get.php?id={$_GET['id']}");
+		}
+	}
+
+	private function other(){
+		die('Other Request Method.');
+	}
+
+	/* 处理请求的路由（POST和GET） */
+	private function requestRouter(){
+		if ( $_SERVER['REQUEST_METHOD'] === 'POST' ){
+			$this->POST();
+		}else if ( $_SERVER['REQUEST_METHOD'] === 'GET' ){
+			$this->GET();
+		}else{
+			$this->other();
+		}
+		return $_SERVER['REQUEST_METHOD'];
+	}
+}
+
+class GetController extends RequestRouter{
+	/* 设置header并结束程序 */
+	private static function jump($headerStr){
+		//print($headerStr);
+		die(header($headerStr));
+	}
+
+	/* 获得帖子 */
 	private static $postModel;
 	public $pool;
-	private function getPool(){
+	public function setPostModelInstance(){
+		self::$postModel = new PostModel;
+	}
+	public function getPool(){
 		$start = ($this->page -1) * $GLOBALS['config']['pageLimit'];
 		$end = $start + $GLOBALS['config']['pageLimit'];
 
@@ -44,55 +86,52 @@ class GetController{
 		$this->pool || die("啊偶，这个帖子好像消失了");
 	}
 
+	/* 获得当前页面显示的用户名（是一个数组） */
 	public static $userModel;
 	public $userNameList;
-	private function setUser(){
+	public function setUserModelInstance(){
+		self::$userModel = new UserModel;
+	}
+	public function setUser(){
 		$idArr = array();
 		foreach($this->pool as $item){
 			array_push($idArr, $item['uid']);
 		}
-
 		$this->userNameList = self::$userModel->getNameArrById( $idArr );
 	}
 
+	/* 获得帖子在 `sbbs_postlist` 的信息 */
 	public $postInfo;
-	private function getPostIndex(){
+	public function getPostIndex(){
 		$this->postInfo = self::$postModel->getPostIndexById($this->pid);
 		$this->postInfo || die("啊偶，这个帖子的Index似乎出了点问题");
 	}
 
+	/**
+	* 获得当前帖子所在板块的名字
+	*/
 	public $boardName;
 	private static $boardModel;
-	private function setBoardName(){
+	public function setBoardModelInstance(){
+		self::$boardModel = new BoardModel;
+	}
+	public function getBoardName(){
 		$data = self::$boardModel->getById($this->postInfo['bid']);
 
-		$data || die("这个帖子似乎被遗忘了……（GetController::setBoardName: bid not found.");
+		$data || die("这个帖子似乎被遗忘了……（GetController::getBoardName: bid not found.");
 
 		$this->boardName = $data['boardname'];
 	}
 
-	public function __construct(){
-		$this->processGET();
-
-		self::$postModel = new PostModel;
-
-		$this->getPool();
-		$this->getPostIndex();
-
-		self::$userModel = new UserModel;
-		$this->setUser();
-
-
-		self::$boardModel = new BoardModel;
-		$this->setBoardName();
-	}
-
 	private function __clone(){}
 }
+
 class GetViewer extends GetController{
+	/* 返回位置导航条的HTML */
 	public function nav(){
 		return "当前位置 <a href=\"index.php\">主页</a> -> <a href=\"board.php?bid={$this->postInfo['bid']}\">{$this->boardName}</a>";
 	}
+
 	private function fetchPost(){
 		$html = '';
 		$c = count($this->pool);
@@ -111,57 +150,7 @@ class GetViewer extends GetController{
 		return $html;
 	}
 	private function put(){
-		print <<<EOT
-		<!DOCTYPE HTML>
-		<html>
-		<head>
-			<meta http-equiv="content-type" content="text/html" charset="utf-8" />
-			<meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-			<meta name="HandheldFriendly" content="true" />
-
-			<link href="style/global.css" rel="stylesheet" type="text/css" />
-			<link href="style/board/global.css" rel="stylesheet" type="text/css" />
-
-			<title>{$this->postInfo['title']} - {$this->config['sbbsName']}</title>
-		</head>
-		<body>
-			<header>{$this->userInfo}</header>
-			<div>
-				<nav>{$this->nav()}</nav>
-				<hr>
-				<h3>{$this->postInfo['title']}</h3>
-				<ul>{$this->fetchPost()}</ul>
-				<form id="posteditor" method="post" >
-					<div id="textinput">
-						<textarea name="content" placeholder="你的发言" ></textarea>
-						<article id="preview"></article>
-					</div>
-					<ul id="editor-menu">
-						<li>
-							<label>
-								格式
-								<select name="type">
-									<option value="text">Text</option>
-									<option value="markdown">Markdown</option>
-									<option value="html">HTML</option>
-									<option value="bbcode">BBCode</option>
-								</select>
-							</label>
-						</li>
-						<li><button id="eidtor-preview">预览</button></li>
-
-						<li>
-							<button name="repost" value="{$this->pid}" type="submit">发射</button>
-						</li>
-					</ul>
-				</form>
-
-			</div>
-			<footer>Hey, sbbs</footer>
-		</body>
-		</html>
-EOT;
+		require('view/get.php');
 	}
 
 	function __destruct(){
